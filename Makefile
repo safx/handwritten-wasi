@@ -6,7 +6,7 @@ SRC_FILES := $(wildcard *.wat)
 all: $(SRC_FILES:.wat=.wasm)
 
 %.wasm: %.wat
-	$(WASM-TOOLS) parse $< -o $@
+	$(WASM-TOOLS) parse $< | wasm-tools strip -o $@ -
 	$(WASM-TOOLS) dump $@
 	ls -l $@
 	$(WASMTIME) $@

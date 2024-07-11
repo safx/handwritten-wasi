@@ -32,18 +32,15 @@
   (alias core export $mem_mod "memory" (core memory $mem))
 
   (core func $get_stdout (canon lower (func $wasi_cli_stdout "get-stdout")))
-  (core instance $core_cli_stdout
-    (export "get-stdout" (func $get_stdout))
-  )
-
   (core func $output_stream_write (canon lower (func $wasi_io_stream "[method]output-stream.write") (memory $mem)))
-  (core instance $core_io_stream
-    (export "[method]output-stream.write" (func $output_stream_write))
+  (core instance $stream_core_instance
+    (export "lower-get-stdout" (func $get_stdout))
+    (export "lower-write" (func $output_stream_write))
   )
 
   (core module $Mod
-    (func $get_stdout (import "wasi:cli/stdout@0.2.0" "get-stdout") (result i32))
-    (func $write (import "wasi:io/streams@0.2.0" "[method]output-stream.write") (param i32 i32 i32 i32))
+    (func $get_stdout (import "output-stream" "lower-get-stdout") (result i32))
+    (func $write (import "output-stream" "lower-write") (param i32 i32 i32 i32))
 
     (func (export "mod-main") (result i32)
       (call $get_stdout)
@@ -55,8 +52,7 @@
   )
 
   (core instance $m (instantiate $Mod
-    (with "wasi:cli/stdout@0.2.0" (instance $core_cli_stdout))
-    (with "wasi:io/streams@0.2.0" (instance $core_io_stream))
+    (with "output-stream" (instance $stream_core_instance))
   ))
 
   (func $main_lifted (result (result)) (canon lift (core func $m "mod-main")))
