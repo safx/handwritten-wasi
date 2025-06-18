@@ -5,11 +5,11 @@
   (alias export $wasi_io_error "error" (type $error_type))
 
   (import "wasi:io/streams@0.2.0" (instance $wasi_io_stream
-    (export $os "output-stream" (type (sub resource)))
+    (export "output-stream" (type $os (sub resource)))
 
-    (export $err "error" (type (eq $error_type)))
+    (export "error" (type $err (eq $error_type)))
     (type $errval (variant (case "last-operation-failed" (own $err)) (case "closed")))
-    (export $error "stream-error" (type (eq $errval)))
+    (export "stream-error" (type $error (eq $errval)))
 
     (export "[method]output-stream.write"
       (func
@@ -20,7 +20,7 @@
   (alias export $wasi_io_stream "output-stream" (type $output_stream_type))
 
   (import "wasi:cli/stdout@0.2.0" (instance $wasi_cli_stdout 
-    (export $os "output-stream" (type (eq $output_stream_type)))
+    (export "output-stream" (type $os (eq $output_stream_type)))
     (export "get-stdout" (func (result (own $os))))
   ))
 
